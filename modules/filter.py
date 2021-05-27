@@ -4,14 +4,16 @@ import hashlib
 import sys
 import pandas as pd
 
+from modules.catalog import Catalog
+
 
 class RefactoringFilter:
 
     def valid_level(self, level, language):
         return ((level.lower() == 'methoddeclaration') and (language.lower() == 'java')) or ((level.lower() == 'function') and (language.lower() == 'js'))
 
-    def valid_type(level, language):
-        ((level.lower() == 'methoddeclaration') and (language.lower() == 'java')) or ((level.lower() == 'function') and (language.lower() == 'js'))
+    def valid_type(self, refactoring, language):
+        return (refactoring.get('refactoringType') in Catalog.operations(language)) 
     
     def contains_test_package(self, path):
         path = path.split("#")[0]
@@ -44,8 +46,8 @@ class RefactoringFilter:
         entity_after = refactoring.get('entityAfterFullName')
         return ("#new(" in entity_before) or ("#new(" in entity_after)
 
-    def valid_refactoring(self, refactoring, list_duplicated_edges):
-        return ((not self.contains_constructor(refactoring)) and (not self.equals_entities(refactoring)) and (not self.contains_duplicated_edge(refactoring, list_duplicated_edges)))
+    def valid_refactoring(self, refactoring, list_duplicated_edges, language):
+        return ((not self.contains_constructor(refactoring)) and (not self.equals_entities(refactoring)) and (not self.contains_duplicated_edge(refactoring, list_duplicated_edges)) and (self.valid_type(refactoring, language)))
 
     def find_duplicated_operations(self, refactorings):
         operations = []
@@ -67,7 +69,7 @@ class RefactoringFilter:
 
         with open('dataset/{}/results/selected_refactorings.csv'.format(project), 'a+') as file:
             for index, ref in refactorings.iterrows():
-                if (self.valid_level(ref.get('refactoringLevel'), language)) and (self.valid_package(ref.get('entityBeforeFullName'))) and (self.valid_package(ref.get('entityAfterFullName')) and (self.valid_refactoring(ref, list_duplicated_edges))):
+                if (self.valid_level(ref.get('refactoringLevel'), language)) and (self.valid_package(ref.get('entityBeforeFullName'))) and (self.valid_package(ref.get('entityAfterFullName')) and (self.valid_refactoring(ref, list_duplicated_edges, language))):
                     line = ''
                     for key in ref.keys():
                         line = line + '{};'.format(ref.get(key))
