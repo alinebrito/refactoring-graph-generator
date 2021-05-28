@@ -6,7 +6,6 @@ import pandas as pd
 
 from modules.catalog import Catalog
 
-
 class RefactoringFilter:
 
     def valid_level(self, level, language):

@@ -19,16 +19,18 @@ def main():
     project = sys.argv[1]
     language = sys.argv[2]
 
-    # git = GitService()
-    # git.clone(project)
-    # git.first_parent(project)
+    git = GitService()
+    git.clone(project)
+    git.first_parent(project)
 
-    # refdiff = RefDiff()
-    # refdiff.detect_refactorings(project, language)
+    refdiff = RefDiff()
+    refdiff.detect_refactorings(project, language)
 
     filter = RefactoringFilter()
-    code_operations = filter.core_operations(project, language)
+    filter.core_operations(project, language)
     
+    rg = RefactoringGraph()
+    subgraphs = rg.find_disconnected_subgraphs(project, language)
 
     pass
 
