@@ -182,7 +182,7 @@ class RefactoringGraph:
 
     def save_graph_to_html(self, project, diggraph, group, id):
 
-        file_name = 'dataset/{}/results/plot/{}_subgraph_{}.html'.format(project, group, id) 
+        file_name = 'dataset/{}/results/view/{}_subgraph_{}.html'.format(project, group, id) 
         print('Creating {}'.format(file_name))
         os.makedirs(os.path.dirname(file_name), exist_ok=True)
         with io.open(file_name, 'w', encoding='utf8') as f:
