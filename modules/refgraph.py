@@ -4,6 +4,7 @@ import os
 import json
 import pandas as pd
 import networkx as nx
+import io
 from graphviz import Digraph
 
 from modules.catalog import Catalog
@@ -166,20 +167,55 @@ class RefactoringGraph:
 
     def find_disconnected_subgraphs(self, project, language):
 
-        refactorings = pd.read_csv('dataset/{}/results/refactorings.csv'.format(project), sep=';', keep_default_na=False)
+        refactorings = pd.read_csv('dataset/{}/results/selected_refactorings.csv'.format(project), sep=';', keep_default_na=False)
 
         graph_data = self.extract_graph(language, refactorings)
         digraph = self.create_digraph(graph_data)['digraph']
         subgraphs = self.extract_subgraphs(project, digraph, graph_data)['directed_subgraphs']
         groups_subgraph = self.split_supgraphs_atomic_and_overtime(subgraphs)
         
-        self.write_json(groups_subgraph.get('atomic'), 'dataset/{}/results/subgraphs'.format(project), 'atomic_subgraphs.json')
+        self.write_json(groups_subgraph.get('atomic'), 'dataset/{}/results'.format(project), 'atomic_subgraphs.json')
 
-        self.write_json(groups_subgraph.get('overtime'), 'dataset/{}/results/subgraphs'.format(project), 'overtime_subgraphs.json')
+        self.write_json(groups_subgraph.get('overtime'), 'dataset/{}/results'.format(project), 'overtime_subgraphs.json')
 
         return
 
-      def plot(self, language):
+    def save_graph_to_html(self, project, diggraph, group, id):
+
+        file_name = 'dataset/{}/results/plot/{}_subgraph_{}.html'.format(project, group, id) 
+        print('Creating {}'.format(file_name))
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+        with io.open(file_name, 'w', encoding='utf8') as f:
+            f.write(diggraph.pipe().decode('utf-8'))
+        return
+
+    def plot(self, project, subgraphs, label_group):
+        
+        for subgraph in subgraphs:
+            diggraph = Digraph(format='svg')
+            diggraph.attr('node', shape='point', fixedsize='true', width='0.15')
+            edges = subgraph.get('edges')
+            for edge in edges:
+                for refactoring in edge:
+                    diggraph.edge(refactoring.get('entityBeforeFullName'), refactoring.get('entityAfterFullName'), color='red', label=refactoring.get('refactoringType'), len='0.1')
+            label_text = '\n\nRefactoring subgraph #{}'.format(subgraph.get('id'))
+            diggraph.attr(bgcolor='gainsboro', label=label_text, fontcolor='black', rankdir='LR', ratio='auto', pad="0.5,0.5")
+            self.save_graph_to_html(project, diggraph, label_group, subgraph.get('id'))    
+
+        return
+
+    def plot_overtime_subgraphs(self, project):
+        file_name =  'dataset/{}/results/overtime_subgraphs.json'.format(project)
+        with open(file_name) as json_file:
+            subgraphs = json.load(json_file)
+            self.plot(project, subgraphs, 'overtime')
+        pass
+
+    def plot_atomic_subgraphs(self, project):
+        file_name =  'dataset/{}/results/atomic_subgraphs.json'.format(project)
+        with open(file_name) as json_file:
+            subgraphs = json.load(json_file)
+            self.plot(project, subgraphs, 'atomic')
         pass
 
     
