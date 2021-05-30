@@ -15,6 +15,8 @@ class RefDiff:
         head = 'entityBeforeFullName;entityBeforeSimpleName;entityBeforeLocation;entityBeforeParameters;entityBeforeLine;entityBeforeParents;entityAfterFullName;entityAfterSimpleName;entityAfterLocation;entityAfterParameters;entityAfterLine;entityAfterParents;refactoringLevel;refactoringType;commitHash;abbreviatedCommitHash;authorName;authorEmail;authorDate;authorDateUnixTimestamp;committerName;committerEmail;committerDate;committerDateUnixTimestamp'
 
         with open('{}/refactorings.csv'.format(path), 'a+') as file:
+            file.flush()
+            os.fsync(file.fileno())
             file.write('{}\n'.format(head))
             for index, commit in commits.iterrows():
 
@@ -30,5 +32,8 @@ class RefDiff:
                                 line = line + '{};'.format(ref.get(key))
                             for key in commit.keys():#commit
                                 line = line + '{};'.format(commit.get(key))
+                            file.flush()
+                            os.fsync(file.fileno())
                             file.write('{}\n'.format(line[:-1]))
+                            
         pass
