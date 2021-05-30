@@ -4,7 +4,7 @@ import hashlib
 import sys
 import pandas as pd
 
-from modules.catalog import Catalog
+from scripts.catalog import Catalog
 
 class RefactoringFilter:
 

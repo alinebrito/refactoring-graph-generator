@@ -3,10 +3,10 @@ import subprocess
 import os
 import json
 import pandas as pd
-from modules.gitservice import GitService
-from modules.refdiff import RefDiff
-from modules.filter import RefactoringFilter
-from modules.refgraph import RefactoringGraph
+from scripts.gitservice import GitService
+from scripts.refdiff import RefDiff
+from scripts.filter import RefactoringFilter
+from scripts.refgraph import RefactoringGraph
 
 def main():
     print('\n\n----------------------------------------------')
@@ -33,7 +33,6 @@ def main():
     rg.find_disconnected_subgraphs(project, language)
     rg.plot_atomic_subgraphs(project)
     rg.plot_overtime_subgraphs(project)
-
 
     pass
 

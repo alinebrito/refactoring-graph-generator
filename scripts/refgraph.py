@@ -7,7 +7,7 @@ import networkx as nx
 import io
 from graphviz import Digraph
 
-from modules.catalog import Catalog
+from scripts.catalog import Catalog
 
 class RefactoringGraph:
 
