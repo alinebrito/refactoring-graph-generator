@@ -21,22 +21,22 @@ Java:
 
 Commits: 
 
-> output/owner/project/results/commits.csv
+> dataset/owner/project/results/commits.csv
 
 Refactorings:
 
-> output/owner/project/results/refactorings.csv
+> dataset/owner/project/results/refactorings.csv
 
 Selected refactorings:
 
-> output/owner/project/results/selected_refactorings.csv
+> dataset/owner/project/results/selected_refactorings.csv
 
 Refactorings subgraphs (JSON):
 
-> output/owner/project/results/atomic_subgraphs.json
+> dataset/owner/project/results/atomic_subgraphs.json
 
-> output/owner/project/results/overtime_subgraphs.json
+> dataset/owner/project/results/overtime_subgraphs.json
 
 Refactorings subgraphs (HTML):
 
-> output/owner/project/results/view
+> dataset/owner/project/results/view
