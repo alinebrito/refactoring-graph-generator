@@ -27,7 +27,7 @@ class Catalog:
         dictionary = {}
         dictionary["RENAME"] = 101
         #dictionary["PULL_UP"] = 102
-        d#ictionary["PUSH_DOWN"] = 103
+        #dictionary["PUSH_DOWN"] = 103
         dictionary["MOVE"] = 104
         dictionary["MOVE_RENAME"] = 105
         dictionary["EXTRACT"] = 106

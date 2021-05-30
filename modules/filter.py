@@ -32,6 +32,18 @@ class RefactoringFilter:
         contains_example_package = bool(re.search(r'(example.+?|example)\.', path, re.IGNORECASE))
         return contains_example_package
 
+    def exports_keyword(self, entity):
+        return bool(re.search(r'(^exports.|^exports#|\.exports\.|\.exports#|#exports$)', entity, re.IGNORECASE))
+
+    def contains_exports_keyword(self, refactoring):
+        return self.exports_keyword(refactoring.get('entityBeforeFullName')) or self.exports_keyword(refactoring.get('entityAfterFullName'))
+
+    def entity_contains_package(self, entity, package):
+        return bool(re.search(r'(^' + package + '.|\.' + package + '\.|\.' + package + '#)', entity, re.IGNORECASE))
+
+    def contains_package(self, refactoring, package):
+        return self.entity_contains_package(refactoring.get('entityBeforeFullName'), package) or self.entity_contains_package(refactoring.get('entityAfterFullName'), package)
+
     def valid_package(self, path):
         return ((not self.contains_test_package(path)) and (not self.contains_sample_package(path)) and (not self.contains_example_package(path)))
 
@@ -46,7 +58,7 @@ class RefactoringFilter:
         return ("#new(" in entity_before) or ("#new(" in entity_after)
 
     def valid_refactoring(self, refactoring, list_duplicated_edges, language):
-        return ((not self.contains_constructor(refactoring)) and (not self.equals_entities(refactoring)) and (not self.contains_duplicated_edge(refactoring, list_duplicated_edges)) and (self.valid_type(refactoring, language)))
+        return (not self.equals_entities(refactoring)) and (not self.contains_duplicated_edge(refactoring, list_duplicated_edges)) and (self.valid_type(refactoring, language))
 
     def find_duplicated_operations(self, refactorings):
         operations = []
@@ -58,17 +70,30 @@ class RefactoringFilter:
         edge2 = '{}|{}'.format(refactoring.get('entityAfterFullName'), refactoring.get('entityBeforeFullName'))
         return (edge1 in list_duplicated_edges) or (edge2 in list_duplicated_edges)
 
-    def core_operations(self, project, language):
+    def default_core_operation(self, refactoring, list_duplicated_edges, language):
+        return self.valid_level(refactoring.get('refactoringLevel'), language) and self.valid_package(refactoring.get('entityBeforeFullName')) and self.valid_package(refactoring.get('entityAfterFullName')) and self.valid_refactoring(refactoring, list_duplicated_edges, language)
+
+    def core_operation_js(self, refactoring, list_duplicated_edges, language):
+        return self.default_core_operation(refactoring, list_duplicated_edges, language) and (not self.contains_exports_keyword(refactoring)) and (not self.contains_package(refactoring, 'dist')) and (not self.contains_package(refactoring, 'doc')) and (not self.contains_package(refactoring, 'docs')) and (not self.contains_package(refactoring, 'benchmark')) and (not self.contains_package(refactoring, 'benchmarks'))
+
+    def core_operation_java(self, refactoring, list_duplicated_edges, language):
+        return self.default_core_operation(refactoring, list_duplicated_edges, language) and     (not self.contains_constructor(refactoring))
+
+    def core_operation(self, refactoring, list_duplicated_edges, language):
+        return self.core_operation_java(refactoring, list_duplicated_edges, language) if language.lower() == 'java' else self.core_operation_js(refactoring, list_duplicated_edges, language)
+
+    def filter_core_operations(self, project, language):
       
         refactorings = pd.read_csv('dataset/{}/results/refactorings.csv'.format(project), sep=';', keep_default_na=False)
 
         core_refactorings = []
         list_duplicated_edges = self.find_duplicated_operations(refactorings)
-        head = 'entityBeforeFullName;entityBeforeSimpleName;entityBeforeLocation;entityBeforeParameters;entityBeforeLine;entityBeforeParents;entityAfterFullName;entityAfterSimpleName;entityAfterLocation;entityAfterParameters;entityAfterLine;entityAfterParents;refactoringLevel;refactoringType;commitHash;abbreviatedCommitHash;authorName;authorEmail;authorDate;authorDateUnixTimestamp;committerName;committerEmail;committerDate;committerDateUnixTimestamp'
 
         with open('dataset/{}/results/selected_refactorings.csv'.format(project), 'a+') as file:
+            head = 'entityBeforeFullName;entityBeforeSimpleName;entityBeforeLocation;entityBeforeParameters;entityBeforeLine;entityBeforeParents;entityAfterFullName;entityAfterSimpleName;entityAfterLocation;entityAfterParameters;entityAfterLine;entityAfterParents;refactoringLevel;refactoringType;commitHash;abbreviatedCommitHash;authorName;authorEmail;authorDate;authorDateUnixTimestamp;committerName;committerEmail;committerDate;committerDateUnixTimestamp'
+            file.write(head)
             for index, ref in refactorings.iterrows():
-                if (self.valid_level(ref.get('refactoringLevel'), language)) and (self.valid_package(ref.get('entityBeforeFullName'))) and (self.valid_package(ref.get('entityAfterFullName')) and (self.valid_refactoring(ref, list_duplicated_edges, language))):
+                if self.core_operation(ref, list_duplicated_edges, language):
                     line = ''
                     for key in ref.keys():
                         line = line + '{};'.format(ref.get(key))
