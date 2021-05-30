@@ -27,10 +27,13 @@ def main():
     refdiff.detect_refactorings(project, language)
 
     filter = RefactoringFilter()
-    filter.core_operations(project, language)
+    filter.filter_core_operations(project, language)
     
     rg = RefactoringGraph()
-    subgraphs = rg.find_disconnected_subgraphs(project, language)
+    rg.find_disconnected_subgraphs(project, language)
+    rg.plot_atomic_subgraphs(project)
+    rg.plot_overtime_subgraphs(project)
+
 
     pass
 
