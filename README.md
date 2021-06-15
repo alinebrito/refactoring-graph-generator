@@ -2,6 +2,18 @@
 
 Scripts to generate refactoring subgraphs in Java and JavaScript.
 
+## Dependencies
+
+* Git 2.17.1+
+
+* Java 8
+
+* Python 3+
+
+* Python libraries: `pip3 install --no-cache-dir -r requirements.txt`
+
+* [Graphviz](https://graphviz.org/download/) 2.40.1 
+
 ## Usage
 
 > python3 main.py owner/project language
