@@ -35,5 +35,6 @@ class RefDiff:
                             file.flush()
                             os.fsync(file.fileno())
                             file.write('{}\n'.format(line[:-1]))
+                subprocess.call('rm -R dataset/code-{}'.format(commit.get('commitHash')[0:7]), shell = True)
                             
         pass
