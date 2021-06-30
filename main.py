@@ -3,6 +3,7 @@ import subprocess
 import os
 import json
 import pandas as pd
+import time
 from scripts.gitservice import GitService
 from scripts.refdiff import RefDiff
 from scripts.filter import RefactoringFilter
@@ -21,6 +22,9 @@ def main():
 
     git = GitService()
     git.clone(project)
+
+    initial_time = time.time()
+
     git.first_parent(project)
 
     refdiff = RefDiff()
@@ -33,6 +37,10 @@ def main():
     rg.find_disconnected_subgraphs(project, language)
     rg.plot_atomic_subgraphs(project)
     rg.plot_overtime_subgraphs(project)
+
+    final_time = time.time()
+
+    print('\n\nExecution time: {} seconds'.format(final_time - initial_time))
 
     pass
 
