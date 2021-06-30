@@ -22,7 +22,7 @@ class RefDiff:
 
                 print('Processing commit {}...'.format(commit.get('commitHash')))
         
-                proc = subprocess.Popen(['java', '-cp', '"bin/refdiff_lib/*"', '-jar', 'bin/refdiff.jar', 'dataset/{}/code'.format(project), project, language, commit.get('commitHash'), '-Xmx6144m'], stdout=subprocess.PIPE).communicate()
+                proc = subprocess.Popen(['java', '-cp', '"bin/refdiff_lib/*"', '-jar', 'bin/refdiff.jar', 'dataset', '{}/code'.format(project), language, commit.get('commitHash'), '-Xmx6144m'], stdout=subprocess.PIPE).communicate()
                 for data in proc:
                     if data:
                         refactorings = json.loads(data.decode('utf-8'))
